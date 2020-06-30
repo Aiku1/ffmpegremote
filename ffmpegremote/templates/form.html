@@ -1,8 +1,153 @@
-<!doctype html>
-<title>Upload new File</title>
-<h1>Upload new File</h1>
-<form method=post enctype=multipart/form-data>
-  <input type=file name=file> <br>
-  <input type=number placeholder="Bitrate (Mb/s)" min=1 default=1 name=bitrate> <br>
-  <input type=submit value=Upload>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="/static/styles.css" rel="stylesheet" type="text/css" />
+<title>FFmpeg render</title>
+</head>
+<body>
+
+<form id='form' method='post' enctype='multipart/form-data'>
+	<div class='group'>
+		<h3><label for='input_filename'>File to convert</label></h3>
+		<input type='file' name=file />
+	</div>
+	<div class='group'>
+		<div class='half'>
+			<h3><label for='v_codec'>Video Codec</label></h3>
+			<select name='v_codec'>
+				<option value='copy'>copy video stream (no encoding)</option>
+				<option value='libx264' selected='selected'>H.264</option>
+				<option value='libx265'>H.265 (HEVC)</option>
+				<!--<option value='libvpx-vp9'>VP9</option>-->
+				<!-- include AV1 asap (Mar 2017) -->
+			</select>
+		</div>
+		<div class='half' id="container">
+			<h3><label for='container'>Container</label></h3>
+			<select name='container'>
+				<option value='mp4' selected='selected'>MP4</option>
+				<option value='mov'>MOV</option>
+				<option value='mkv'>MKV</option>
+			</select>
+		</div>
+	</div>
+
+	<div id='bitrate' class='group videoAdjustment'>
+		<h3>Video Bitrate</h3>
+		<div id='openFC'>&rarr; open Filesize Calculator</div>
+		<div style="margin-bottom: .8em;" class='bitrates_normal vbr'>
+			<label class='label' for='abr'>Average Bitrate: </label>
+			<input type='range' name='abr' oninput="abr_.value=abr.value" min='.5' max='50' step='0.5' value='8'/>
+			<input type='number' name='abr_' oninput="abr.value=abr_.value" step ='0.5' value='8' /> Mbit/sec
+		</div>
+		<div class='bitrates_normal vbr' style="margin-bottom: .8em;">
+			<label class='label' for='mbr' >Minimum Bitrate: </label>
+			<input type='range' name='mbr' oninput="mbr_.value=mbr.value" min='.5' max='50' step='0.5' value='8'/>
+			<input type='number' name='mbr_' oninput="mbr.value=mbr_.value" step ='0.5' value='8'/> Mbit/sec
+		</div>
+		<div id="bitrate_constant" class="disabled bitrates_normal cbr" style="margin-bottom: .8em;">
+			<label class='label' for='cbr'>Constant Bitrate: </label>
+			<input type='range' name='cbr' oninput="cbr_.value=cbr.value" min='.5' max='50' step='0.5' value='8'/>
+			<input type='number' name='cbr_' oninput="cbr.value=cbr_.value" step ='0.5' value='8' /> Mbit/sec
+		</div>
+		<div class='bitrates_normal'>
+			<input type="checkbox" name="constant"> <label for="constant"><em>Constant Bitrate</em></label>
+		</div>
+		<div class='bitrate_dnx disabled'>
+			<label class='label' for='dnxbr'>Bitrate: </label>
+			<input id="dnxbrSlider" type='range' name='dnxbr' min='0' max='4' value='3'/>
+			<span class="number" id="dnxbr_number">120</span> Mbit/sec
+		</div>
+
+		<div id='fc' class="disabled"><hr/>
+			If the Video has a length of<input id='lengthFC' type="time">, it will be something around <span id='finalsize'>a lot of</span> MB.
+		</div>
+	</div>	
+
+	<div id='scale' class='group videoAdjustment'>
+		<div class="half">
+			<h3><label for='scale'>Resolution</label></h3>
+			<select name='scale'>
+				<option value='0'>keep original resolution</option>
+				<option value='1920:1080'>1920 x 1080</option>
+				<option value='1280:720'>1280 x 720</option>
+				<option value='960:540'>960 x 540</option>
+				<option value='640:360'>640 x 360</option>
+				<option value='1920:-1'>1920 width (keep aspect ratio)</option>
+				<option value='1280:-1'>1280 width (keep aspect ratio)</option>
+				<option value='960:-1'>960 width (keep aspect ratio)</option>
+				<option value='640:-1'>640 width (keep aspect ratio)</option>
+			</select>
+		</div>
+		<div class="half unable">
+			<h3><label for='trim'>Trim</label><input type="checkbox" name="trim" /></h3>
+			Start <input id='ss' type="time" name='ss' step="00.01" value="00:00:00.000" disabled />&nbsp;&nbsp;
+			End <input id='to' type="time" name="to" step="00.01" value="00:00:00.000" disabled />
+		</div>
+	</div>
+
+	<div id='preset' class='group videoAdjustment'>
+		<h3><label for='preset'>Quality Preset</label></h3>
+		<input id='presetSlider' type='range' name='preset' min='0' max='8' value='5'/><i id='presetName'>medium</i>
+
+		<div id='proresPresets' class="disabled">
+			<select name='profile'>
+				<option value='0'>Proxy</option>
+				<option value='1'>422 LT</option>
+				<option value='2' selected='selected'>422</option>
+				<option value='3'>422 HQ</option>
+				<option value='4'>4444</option>
+			</select>
+		</div>
+
+		<div id='dnxPresets' class="disabled">
+			<select name='dnxprofile'>
+				<option value='dnxhd' selected='selected'>DNxHD</option>
+				<option value='dnxhr_444'>DNxHR 444</option>
+				<option value='dnxhr_hqx'>DNxHR_HQX</option>
+				<option value='dnxhr_hq'>DNxHR HQ</option>
+				<option value='dnxhr_sq'>DNxHR SQ</option>
+				<option value="dnxhr_lb">DNxHR LB</option>
+			</select>
+		</div>
+	</div>
+
+	<div class='group'>
+		<div class='half'>
+			<h3><label for='a_codec'>Audio Codec</label></h3>
+			<select name='a_codec'>
+				<option value='copy'>copy audio stream (no encoding)</option>
+				<option value=0>no audio</option>
+				<option value='aac' selected='selected'>AAC</option>
+				<option value='libmp3lame'>MPEG</option>
+				<option value="pcm_s16le">PCM S16le (lossless)</option>
+			</select>
+		</div>
+
+		<div id='a_bitrate' class='half audioAdjustment'>
+			<h3><label for='brA'>Audio Bitrate</label></h3>
+			<div> 
+				<input type='range' name='brA' oninput="brA_.value=brA.value" min='64' max='320' step='64' value='320'/>
+				<input type='number' name='brA_' oninput="brA.value=brA_.value" value='320' /> Kbit/sec
+			</div>
+		</div>
+	</div>
+    <div class='group' id='final'>
+        <h3><label for='final_string'>ffmpeg command to be executed </label></h3>
+        <input type='text' name='final_string' id='final_string' onClick="this.select();"/>
+    </div>
+	    <br>
+    <center>
+	    <input type=submit value=Upload>
+    </center>
+	    <br>
+	    <br>
+	    <br>
+	    <br>
 </form>
+
+<script type="text/javascript" src="/static/jquery.js"></script>
+<script type="text/javascript" src="/static/script.js"></script>
+</body>
+</html>

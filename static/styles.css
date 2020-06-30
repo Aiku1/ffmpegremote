@@ -1,0 +1,98 @@
+body{
+	font-family: Arial, sans-serif;
+	width: 800px;
+	margin: 0 auto;
+	color: #4a687b;
+}
+.group{
+	display: block;
+	padding: 1em 1em 1.5em;
+	/*border-top: solid thin black;*/
+	border: solid thin #d7d5ca;
+	position: relative;
+	overflow: hidden;
+	background: #eae9e4;
+	margin-bottom: 8px;
+	border-radius: 2px;
+}
+h3{
+	font-weight: 500;
+	font-size: 1.2em;
+	margin: 0 0 1em;
+	color: #3a4c58;
+}
+input, select, i, .number{
+	font-size: 1em;
+	background: #f5f4f2;
+	color: #398ca0;
+	font-weight: bold;
+}
+select{
+	padding: 4px;
+	border-radius: 4px;
+	border-color: #d7d5ca;
+}
+.label{
+	width: 150px;
+	float: left;
+}
+input[type='number'], input[type='time'], .number{
+	border: 0;
+	padding: 6px 4px 4px;
+	margin-left: 1em;
+	border-radius: 4px;
+}
+input[type='number'], .number{
+	width: 3em;
+}
+i{
+	font-style: normal;
+	margin: 0 5%;
+    width: 35%;
+    padding: 3px 0;
+	text-align: center;
+	float: right;
+}
+input[type='number']:hover, input[type='number']:active{
+	background: #ddd;
+}
+input[type='range']{
+	width: 50%;
+	margin: 0;
+	background-color: transparent;
+}
+.half{
+	width: 50%;
+	float: left;
+}
+.disabled{
+	display: none;
+	/*opacity: .5;*/
+}
+.unable{
+	opacity: .5;
+}
+#openFC{
+	font-size: .8em;
+	color: #398ca0;
+	cursor: pointer;
+	position: absolute;
+	top:0;
+	right: 0;
+	padding: 16px;
+}
+#finalsize{
+	font-weight: 800;
+	color: #398ca0;
+}
+#final{
+	border-color: #8da7ad;
+}
+#final_string{
+	font-size: 1em;
+	width: 100%;
+	padding: .2em;
+	/*margin-bottom: 3em;*/
+	border: none;
+	font-weight: normal;
+}
