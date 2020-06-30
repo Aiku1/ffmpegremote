@@ -31,11 +31,11 @@ def cleanup(response):
     os.makedirs('uploads/')
     return response
 
-@app.route('/render', methods=['GET'])
+@app.route('/', methods=['GET'])
 def display_form():
     return render_template('form.html')
 
-@app.route('/render', methods=['POST'])
+@app.route('/', methods=['POST'])
 def upload_file():
     file = request.files['file']
 
@@ -47,13 +47,29 @@ def upload_file():
     file = file.filename
     outputfile = file[:file.find('.')] + ".out" + file[file.find('.'):]
 
-    ffmpegCommand = request.form['final_string']
-    ffmpegProcess = subprocess.Popen(ffmpegCommand.split(), stdout=subprocess.PIPE)
-    output, error = ffmpegProcess.communicate()
+    # if the requests comes from the GUI or has a fully qualified command, execute that
+    if request.form['final_string']:
+        ffmpegCommand = request.form['final_string']
+        ffmpegProcess = subprocess.Popen(ffmpegCommand.split(), stdout=subprocess.PIPE)
+        output, error = ffmpegProcess.communicate()
 
-    if not error:
-        return send_from_directory('../' + app.config['UPLOAD_FOLDER'], outputfile, as_attachment=True)
+        if error:
+            return redirect(request.url)
+    # if not, execute with single parameters
     else:
-        return redirect(request.url)
+        filename = secure_filename(file.filename)
+        bitrate = int(request.args.get("bitrate", 1))
+        input_path = f"{app.config['UPLOAD_FOLDER']}/{filename}"
+        output_path = f"{app.config['UPLOAD_FOLDER']}/{outputfile}"
+        (
+            ffmpeg
+            .input(input_path)
+            .output(output_path, video_bitrate=str(bitrate)+'M')
+            .overwrite_output()
+            .run(quiet=True)
+        )
+        
+    return send_from_directory('../' + app.config['UPLOAD_FOLDER'], outputfile, as_attachment=True)
 
-app.run(host="0.0.0.0", port=8081)
+
+app.run(host="0.0.0.0", port=80)
