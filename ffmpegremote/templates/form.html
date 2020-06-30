@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<link href="styles.css" rel="stylesheet" type="text/css" />
+<link href="/static/styles.css" rel="stylesheet" type="text/css" />
 <title>FFmpeg render</title>
-
 </head>
 <body>
-<form id='form' method=post enctype=multipart/form-data>
+
+<form id='form' method='post' enctype='multipart/form-data'>
 	<div class='group'>
 		<h3><label for='input_filename'>File to convert</label></h3>
 		<input type='file' name=file />
@@ -19,8 +19,6 @@
 				<option value='copy'>copy video stream (no encoding)</option>
 				<option value='libx264' selected='selected'>H.264</option>
 				<option value='libx265'>H.265 (HEVC)</option>
-				<option value='prores'>Apple ProRes</option>
-				<option value='dnxhd'>Avid DNxHD</option>
 				<!--<option value='libvpx-vp9'>VP9</option>-->
 				<!-- include AV1 asap (Mar 2017) -->
 			</select>
@@ -139,10 +137,17 @@
         <h3><label for='final_string'>ffmpeg command to be executed </label></h3>
         <input type='text' name='final_string' id='final_string' onClick="this.select();"/>
     </div>
-    <input type=submit value=Upload>
+	    <br>
+    <center>
+	    <input type=submit value=Upload>
+    </center>
+	    <br>
+	    <br>
+	    <br>
+	    <br>
 </form>
 
-<script type="text/javascript" src="jquery.js"></script>
-<script type="text/javascript" src="script.js"></script>
+<script type="text/javascript" src="/static/jquery.js"></script>
+<script type="text/javascript" src="/static/script.js"></script>
 </body>
 </html>

@@ -15,7 +15,7 @@ var dnx_bitrates = [36, 60, 90, 120, 185];
 var a_codec = '';
 var a_br = 0;
 
-var outputfile_string = '_converted';
+var outputfile_string = '.out';
 var outputfile = '';
 
 var videostring = '';
@@ -127,14 +127,14 @@ function update(){
 	filesize = ($("input[name='abr']").val() * length / 8) + ($("input[name='brA']").val() / 1024 * length / 8);
 	$('#finalsize').html(filesize.toFixed(2));
 
-	//filename strings
-	inputfile = $("input[name='input_filename']").val().split(/(\\|\/)/g).pop();
+	// filename strings
+	inputfile = $("input[name='file']").val().split(/(\\|\/)/g).pop();
 	filename = inputfile.split('.')[0];
 	container = $("select[name='container']").val();
-	outputfile = ' ' + filename + outputfile_string + '.' + container;
+	outputfile = filename + outputfile_string + '.' + container;
 	
 	//final string
-	finalstring = 'ffmpeg -i ' + inputfile + videostring + audiostring + outputfile;
+	finalstring = 'ffmpeg ffmpeg -hide_banner -loglevel error -i' + " uploads/" + inputfile + " " + videostring + audiostring + " uploads/" + outputfile + "";
 	$("#final_string").val(finalstring);
 };
 
