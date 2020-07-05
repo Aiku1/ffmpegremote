@@ -45,16 +45,16 @@ def upload_file():
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
 
     file = file.filename
-    outputfile = file[:file.find('.')] + ".out" + file[file.find('.'):]
+    outputfile = file[:file.find('.')] + "_out" + file[file.find('.'):]
 
     # if the requests comes from the GUI or has a fully qualified command, execute that
     if request.form['final_string']:
         ffmpegCommand = request.form['final_string']
         ffmpegProcess = subprocess.Popen(ffmpegCommand.split(), stdout=subprocess.PIPE)
         output, error = ffmpegProcess.communicate()
-
+        
         if error:
-            return redirect(request.url)
+            return redirect("")
     # if not, execute with single parameters
     else:
         filename = secure_filename(file.filename)
@@ -68,8 +68,7 @@ def upload_file():
             .overwrite_output()
             .run(quiet=True)
         )
-        
+       
     return send_from_directory('../' + app.config['UPLOAD_FOLDER'], outputfile, as_attachment=True)
-
 
 app.run(host="0.0.0.0", port=80)
