@@ -15,7 +15,7 @@ var dnx_bitrates = [36, 60, 90, 120, 185];
 var a_codec = '';
 var a_br = 0;
 
-var outputfile_string = '.out';
+var outputfile_string = '_out';
 var outputfile = '';
 
 var videostring = '';
@@ -134,7 +134,7 @@ function update(){
 	outputfile = filename + outputfile_string + '.' + container;
 	
 	//final string
-	finalstring = 'ffmpeg ffmpeg -hide_banner -loglevel error -i' + " uploads/" + inputfile + " " + videostring + audiostring + " uploads/" + outputfile + "";
+	finalstring = 'ffmpeg -hide_banner -loglevel error -i' + " uploads/" + inputfile + " " + videostring + audiostring + " uploads/" + outputfile;
 	$("#final_string").val(finalstring);
 };
 
@@ -154,6 +154,10 @@ $('#presetSlider').change(function(){
 
 $('#openFC').on('click', function(){
 	$('#fc').toggleClass('disabled');
+})
+
+$('#upload').on('click', function(){
+	alert("Your file will now be uploaded and rendered.\n When it's ready, your browser will automatically download it (or ask you to do so).");
 })
 
 function hmsToSeconds(str) {
