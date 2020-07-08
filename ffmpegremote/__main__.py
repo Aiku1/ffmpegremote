@@ -8,27 +8,35 @@ from werkzeug.utils import secure_filename
 import subprocess
 import ffmpeg
 import subprocess
+import pathlib
 
-UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'mp4', 'mkv', 'mov', 'avi'}
+WORKDIR = str(pathlib.Path(__file__).parent.parent.absolute())
 
-if not os.path.isdir('uploads/'):
-    os.makedirs('uploads/')
-
-app = Flask(__name__)
-app = Flask(__name__, static_url_path="/static", static_folder='/home/user/ffmpegremote/static')
+app = Flask(__name__, static_url_path="/static/", static_folder= WORKDIR + '/static')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER = WORKDIR + '/uploads'
 app.secret_key="xeRkxtIsvphE4/s+"
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # app.config["DEBUG"] = True
+
+if not os.path.isdir(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 def allowed_file(filename):
     return ('.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS)
 
 @app.after_request
 def cleanup(response):
-    shutil.rmtree('uploads/')
-    os.makedirs('uploads/')
+    try:
+        os.makedirs(UPLOAD_FOLDER)
+    except:
+        pass
+
+    try:
+        shutil.rmtree(UPLOAD_FOLDER)
+        os.makedirs(UPLOAD_FOLDER)
+    except:
+        pass
+
     return response
 
 @app.route('/', methods=['GET'])
@@ -50,6 +58,7 @@ def upload_file():
     # if the requests comes from the GUI or has a fully qualified command, execute that
     if request.form['final_string']:
         ffmpegCommand = request.form['final_string']
+        ffmpegCommand = ffmpegCommand.replace('uploads', app.config['UPLOAD_FOLDER'])
         ffmpegProcess = subprocess.Popen(ffmpegCommand.split(), stdout=subprocess.PIPE)
         output, error = ffmpegProcess.communicate()
         
@@ -69,6 +78,6 @@ def upload_file():
             .run(quiet=True)
         )
        
-    return send_from_directory('../' + app.config['UPLOAD_FOLDER'], outputfile, as_attachment=True)
+    return send_from_directory(app.config['UPLOAD_FOLDER'], outputfile, as_attachment=True)
 
 app.run(host="0.0.0.0", port=80)
